@@ -1,99 +1,177 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Overview
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+The Company Management System is an admin panel that helps manage employees and their activities within an organization. The system provides a centralized interface for administrators to handle employees, roles, departments, attendance, payroll, and performance evaluations.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Features
 
-## Description
+## Employee Management
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Add, update, delete employees
 
-## Project setup
+Assign roles and departments
 
-```bash
-$ npm install
-```
+Maintain personal and work details
 
-## Compile and run the project
+## Role-Based Access Control (RBAC)
 
-```bash
-# development
-$ npm run start
+Admin, HR, and Employee(Project Lead[Having access to all the current project members data (leave, skills)], Team Lead[Having access to all freshers and interns data]) roles
 
-# watch mode
-$ npm run start:dev
+Restricted access based on role permissions
 
-# production mode
-$ npm run start:prod
-```
+Role-based actions for security
 
-## Run tests
+## Attendance & Leave Management
 
-```bash
-# unit tests
-$ npm run test
+Track employee attendance
 
-# e2e tests
-$ npm run test:e2e
+Apply for leaves and approvals
 
-# test coverage
-$ npm run test:cov
-```
+Manage holiday calendar
 
-## Deployment
+## Payroll Management
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Generate and manage employee salaries
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Calculate bonuses and deductions
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+Process payroll transactions
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Performance Evaluation
 
-## Resources
+Conduct employee performance reviews
 
-Check out a few resources that may come in handy when working with NestJS:
+Assign ratings and feedback
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Set performance improvement plans
 
-## Support
+## Project & Task Management
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Assign projects to employees
 
-## Stay in touch
+Monitor progress and deadlines
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Track task completion status
 
-## License
+## Reports & Analytics
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Employee work hours report
+
+Salary and leave reports
+
+Performance and productivity analysis
+
+## Food Ordering
+
+Employee
+
+## Technology Stack
+
+# Frontend:
+
+Next.js (UI)
+
+Tailwind CSS / Material UI (Styling)
+
+Redux (State Management)
+
+# Backend:
+
+Node.js (Server)
+
+nest.js (API Framework)
+
+JWT (Authentication)
+
+Kafka
+
+Database:
+
+MongoDB / PostgreSQL
+
+Redis (Caching, session management)
+
+DevOps & Deployment:
+
+Docker (Containerization)
+
+AWS / Digital Ocean (Hosting)
+
+# System Architecture
+
+The system follows an MVC (Model-View-Controller) pattern:
+
+Frontend: Next-based admin panel
+
+Backend: Node.js with Express handling business logic
+
+Database: MongoDB/PostgreSQL for structured data
+
+Authentication: JWT-based authentication with role-based access
+
+Caching & Session Management: Redis for performance optimization
+
+Microservices: Modular services for scalability (optional)
+
+# API Endpoints
+
+Authentication
+
+POST /api/auth/login → User login
+
+POST /api/auth/logout → User logout
+
+POST /api/auth/register → Admin creates employee accounts
+
+Employee Management
+
+GET /api/employees → Fetch all employees
+
+GET /api/employees/:id → Fetch a single employee
+
+POST /api/employees → Add a new employee
+
+PUT /api/employees/:id → Update employee details
+
+DELETE /api/employees/:id → Remove employee
+
+Attendance & Leaves
+
+POST /api/attendance → Mark attendance
+
+GET /api/attendance/:id → Get employee attendance
+
+POST /api/leaves/apply → Apply for leave
+
+PUT /api/leaves/approve/:id → Approve/Reject leave
+
+Payroll Management
+
+POST /api/payroll/generate → Generate salary
+
+GET /api/payroll/:id → Get employee payroll details
+
+# Authentication & Authorization
+
+Uses JWT Tokens for authentication
+
+Role-based access (Admin, HR, Employee)
+
+Enforced middleware for API security
+
+# Deployment Strategy
+
+Dockerized application for seamless deployment
+
+CI/CD pipelines for automated updates
+
+AWS/Digital Ocean cloud deployment
+
+Redis caching for performance optimization
+
+# Future Enhancements
+
+AI-driven employee analytics
+
+Integration with third-party HR tools
+
+Mobile app version for remote management
