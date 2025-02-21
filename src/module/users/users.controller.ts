@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -12,6 +13,7 @@ import { CreateUserDTO } from './dto/createUser.dto';
 import { LoginUserDTO } from './dto/LoginUser.dto';
 import { Request } from 'express';
 import { AuthenticationGuard } from 'src/guards/authentication.guard';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
 
 @Controller('users')
 export class UsersController {
@@ -35,5 +37,21 @@ export class UsersController {
       throw new UnauthorizedException();
     }
     return this.usersService.profile(userDetails.id);
+  }
+
+  @Get('sendRestMail')
+  @UseGuards(AuthenticationGuard)
+  async sendResetMail(@Req() request: Request) {
+    const userDetails = request.user;
+    if (!userDetails || !userDetails.id || !userDetails.email) {
+      throw new UnauthorizedException();
+    }
+    return this.usersService.sendEmailForPassword(userDetails.email);
+  }
+
+  @Post('resetPassword')
+  @UseGuards(AuthenticationGuard)
+  async resetPassword(@Body() resetDTO: ResetPasswordDto, @Query("token") token: string) {
+    return this.usersService.forgotPassword(token, resetDTO.password);
   }
 }
