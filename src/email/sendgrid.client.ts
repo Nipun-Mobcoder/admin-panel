@@ -20,7 +20,7 @@ export class SendGridClient {
   ): Promise<void> {
     try {
       console.log(__dirname, path)
-      const templatePath = path.join("/home/mobcoder/Desktop/admin-panel", "src/email/mailTemplates", fileName);
+      const templatePath = path.join(__dirname, "mailTemplates", fileName);
       console.log(templatePath)
       const emailHTML = await ejs.renderFile(templatePath, {
         userName,
