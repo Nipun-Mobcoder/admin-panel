@@ -30,6 +30,18 @@ export class RolesService {
     }
   }
 
+  async getRoleByID(roleId: string) {
+    try {
+      const role = this.roleModel.findById({ id: roleId });
+      if (!role) throw new NotFoundException(`Role ${roleId} not found`);
+
+      return role;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
   async createRole(createRoleDTO: CreateRoleDTO) {
     try {
       const doesRoleExists = await this.roleModel.findOne({

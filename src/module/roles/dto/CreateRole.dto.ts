@@ -17,7 +17,7 @@ export class CreateRoleDTO {
 
 export class Permission {
   @IsEnum(Resource)
-  @ApiProperty({ example: ['products'] })
+  @ApiProperty({ example: 'products' })
   resource: Resource;
 
   @IsEnum(Action, { each: true })

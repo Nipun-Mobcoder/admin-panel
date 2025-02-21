@@ -8,7 +8,7 @@ import {
 import { CreateUserDTO } from './dto/createUser.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/users.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { randomInt } from 'node:crypto';
@@ -52,10 +52,10 @@ export class UsersService {
       );
 
       let roles: any = [];
-      if(createUser.roles && createUser.roles.length!==0 ) {
-          roles = await Promise.all(
-            createUser.roles.map((role) => this.rolesService.getRole(role)),
-          );
+      if (createUser.roles && createUser.roles.length !== 0) {
+        roles = await Promise.all(
+          createUser.roles.map((role) => this.rolesService.getRole(role)),
+        );
       }
 
       const userData = await this.userModel.create({
@@ -95,53 +95,78 @@ export class UsersService {
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('Password is incorrect.');
     }
+    try {
+      const user = {
+        id: userData.id,
+        email,
+        userName: userData.userName,
+        phoneNumber: userData.phoneNumber,
+        address: userData.address,
+        walletAmount: userData.walletAmount,
+      };
+      const token = await this.jwtService.signAsync({ id: userData.id, email });
+      await this.redisService.set(`token:${email}`, token, '1h');
 
-    const user = {
-      id: userData.id,
-      email,
-      userName: userData.userName,
-      phoneNumber: userData.phoneNumber,
-      address: userData.address,
-      walletAmount: userData.walletAmount,
-    };
+      return { user, token };
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
 
-    const token = await this.jwtService.signAsync({ id: userData.id, email });
-    await this.redisService.set(`token:${email}`, token, '1h');
-
-    return { user, token };
+  async logout(email: string) {
+    try {
+      await this.redisService.delete(`token:${email}`);
+      return `User with email ${email} has been logged out successfully`;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
   }
 
   async sendEmailForPassword(email: string) {
     try {
-        const userDetails = await this.userModel.findOne({ email });
-        if(!userDetails) 
-            throw new NotFoundException(`User ${email} not found.`);
-        const secretKey = this.configService.get('JWT_SECRET');
-        console.log('JWT_SECRET:', secretKey);
-        const token = await this.jwtService.signAsync({email}, { secret: secretKey });
-        await this.sendGridClient.send("welcomeMail.ejs", "User", email, `http://localhost:3000/forgotPassword?token=${token}`, "Reset Password");
-        return `Reset Password email sent at ${email}`;
+      const userDetails = await this.userModel.findOne({ email });
+      if (!userDetails) throw new NotFoundException(`User ${email} not found.`);
+      const token = await this.jwtService.signAsync({ email });
+      await this.redisService.set(`resetToken:${email}`, token, '1h');
+      await this.sendGridClient.send(
+        'welcomeMail.ejs',
+        'User',
+        email,
+        `${this.configService.getOrThrow("FRONTEND_URL")}forgotPassword?token=${token}`,
+        'Reset Password',
+      );
+      return `Reset Password email sent at ${email}`;
     } catch (error) {
-        this.logger.error(error);
+      this.logger.error(error);
       throw new InternalServerErrorException(
         'Looks like something went wrong.',
       );
     }
   }
 
-  async forgotPassword(token: string, password: string) {
-    const email = await this.jwtService.decode(token);
-    const userDetails = await this.userModel.findOne({ email });
-    if(!userDetails) 
-        throw new NotFoundException(`User ${email} not found.`);
+  async forgotPassword(email: string, password: string) {
+    try {
+      const userDetails = await this.userModel.findOne({ email });
+      if (!userDetails) throw new NotFoundException(`User ${email} not found.`);
 
-    const hashedPassword = bcrypt.hashSync(password, this.bcryptSalt);
+      const hashedPassword = bcrypt.hashSync(password, this.bcryptSalt);
 
-    const userData = await this.userModel.findOneAndUpdate({ id: userDetails._id }, { password: hashedPassword }, { new: true } );
+      const userData = await this.userModel.findOneAndUpdate(
+        { email: userDetails.email },
+        { password: hashedPassword },
+        { new: true },
+      );
+      this.redisService.delete(`resetToken:${email}`);
 
-    return {
-        message: "Password updated Successfully",
-        data: userData
+      return {
+        message: 'Password updated Successfully',
+        data: userData,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException();
     }
   }
 
@@ -151,7 +176,30 @@ export class UsersService {
       return userData;
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async getUserAuthorization(id: string) {
+    try {
+      const user = await this.userModel.aggregate([
+        {
+          $match: { _id: new Types.ObjectId(id) },
+        },
+        {
+          $lookup: {
+            from: 'roles',
+            localField: 'roles',
+            foreignField: '_id',
+            as: 'roleDetails',
+          },
+        },
+      ]);
+
+      return user.length ? user[0] : null;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
     }
   }
 }

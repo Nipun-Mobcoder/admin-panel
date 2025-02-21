@@ -10,9 +10,12 @@ import { Reflector } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
 import { Model } from 'mongoose';
+import { Resource } from 'src/common/enum/resource.enum';
 import { Permission } from 'src/module/roles/dto/CreateRole.dto';
+import { RolesService } from 'src/module/roles/roles.service';
 import { Roles } from 'src/module/roles/schema/roles.schema';
 import { User } from 'src/module/users/schema/users.schema';
+import { UsersService } from 'src/module/users/users.service';
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
@@ -20,8 +23,8 @@ export class AuthorizationGuard implements CanActivate {
 
   constructor(
     private readonly reflector: Reflector,
-    @InjectModel(User.name) private readonly userModel: Model<User>,
-    @InjectModel(Roles.name) private readonly roleModel: Model<Roles>,
+    private readonly userService: UsersService,
+    private readonly roleService: RolesService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -40,32 +43,27 @@ export class AuthorizationGuard implements CanActivate {
       return true;
     }
 
-    const userDetails = await this.userModel.findById({ id: user.id });
+    const userDetails = await this.userService.getUserAuthorization(user.id);
     if (!userDetails) {
       throw new NotFoundException(`User ${user.email} not found.`);
     }
 
-    const userRoleIds = userDetails.roles;
-    const userRoles = await Promise.all(
-      userRoleIds.map((userRoleId) => this.roleModel.findById(userRoleId)),
-    );
+    const userRoles = userDetails.roleDetails;
     if (!userRoles || userRoles.length === 0) {
       throw new UnauthorizedException(
         `${userDetails.email} is not authorized to perform this action.`,
       );
     }
-
     const userPermissions = userRoles
-      .filter((role) => role)
-      .flatMap((role) => role?.permissions);
+      .filter((role: any) => role)
+      .flatMap((role: { permissions: any; }) => role?.permissions);
     if (!userPermissions)
       throw new UnauthorizedException(
         `${userDetails.email} is not authorized to perform this action.`,
       );
-
     for (const routePermission of routePermissions) {
       const userPermission = userPermissions.find(
-        (userPermission) =>
+        (userPermission: { resource: Resource; }) =>
           userPermission?.resource === routePermission.resource,
       );
       if (!userPermission) {
@@ -75,7 +73,7 @@ export class AuthorizationGuard implements CanActivate {
       }
 
       const allActionsAvailable = routePermission.actions.every(
-        (requiredAction) => userPermission.action.includes(requiredAction),
+        (requiredAction) => userPermission.actions.includes(requiredAction),
       );
       if (!allActionsAvailable)
         throw new UnauthorizedException(

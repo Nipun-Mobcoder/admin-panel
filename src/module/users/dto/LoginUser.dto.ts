@@ -10,3 +10,9 @@ export class LoginUserDTO {
   @ApiProperty({ example: '123456789' })
   password: string;
 }
+
+export class UserEmailDTO {
+  @IsEmail()
+  @ApiProperty({ example: 'nipun@gmail.com' })
+  email: string;
+}

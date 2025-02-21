@@ -19,15 +19,12 @@ export class SendGridClient {
     subject: string,
   ): Promise<void> {
     try {
-      console.log(__dirname, path)
       const templatePath = path.join(__dirname, "mailTemplates", fileName);
-      console.log(templatePath)
       const emailHTML = await ejs.renderFile(templatePath, {
         userName,
         email,
         url,
       });
-      console.log(emailHTML)
       const mail = {
         to: email,
         from: {

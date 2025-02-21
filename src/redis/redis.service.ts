@@ -46,4 +46,14 @@ export class RedisService {
       throw new InternalServerErrorException();
     }
   }
+
+  async delete(key: string): Promise<void> {
+    try {
+      await this.cacheManager.delete(key);
+      this.logger.log(`token is removed: ${key}`);
+    } catch (error) {
+      this.logger.error(`Failed to remove key: ${key}`, error);
+      throw new InternalServerErrorException();
+    }
+  }
 }
