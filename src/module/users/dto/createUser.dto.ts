@@ -47,11 +47,11 @@ export class CreateUserDTO {
 
   @IsArray()
   @IsString({ each: true })
-  @ApiProperty({ example: ["Admin"] })
+  @ApiProperty({ example: ['Admin'] })
   roles: string[];
 
   @IsEnum(Designation)
-  @ApiProperty({ example: "SDE1" })
+  @ApiProperty({ example: 'SDE1' })
   designation: Designation;
 
   @ValidateNested()

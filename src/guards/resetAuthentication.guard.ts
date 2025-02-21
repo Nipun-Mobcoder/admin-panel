@@ -21,40 +21,33 @@ export class ResetAuthenticationGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    try {
-      const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest<Request>();
 
-      const authHeader = request.header('Authorization');
-      if (!authHeader || !authHeader.startsWith('Bearer')) {
-        throw new UnauthorizedException('User not authorized.');
-      }
-
-      const token = authHeader.split(' ')?.[1];
-
-      if (!token) {
-        throw new UnauthorizedException(
-          'User not authorized. Token is missing',
-        );
-      }
-
-      const decoded = this.jwtService.decode(token);
-
-      if (!decoded || !decoded.email) {
-        throw new NotFoundException('User details are misssing');
-      }
-
-      const redisToken = await this.redisService.get<string>(
-        `resetToken:${decoded.email}`,
-      );
-      if (!redisToken || redisToken !== token) {
-        throw new UnauthorizedException('Token has expired.');
-      }
-
-      request.user = decoded;
-    } catch (error) {
-      this.logger.error(error);
-      throw new InternalServerErrorException();
+    const authHeader = request.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer')) {
+      throw new UnauthorizedException('User not authorized.');
     }
+
+    const token = authHeader.split(' ')?.[1];
+
+    if (!token) {
+      throw new UnauthorizedException('User not authorized. Token is missing');
+    }
+
+    const decoded = this.jwtService.decode(token);
+
+    if (!decoded || !decoded.email) {
+      throw new NotFoundException('User details are misssing');
+    }
+
+    const redisToken = await this.redisService.get<string>(
+      `resetToken:${decoded.email}`,
+    );
+    if (!redisToken || redisToken !== token) {
+      throw new UnauthorizedException('Token has expired.');
+    }
+
+    request.user = decoded;
 
     return true;
   }

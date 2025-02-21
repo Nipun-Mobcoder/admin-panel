@@ -8,7 +8,7 @@ import {
 import { CreateUserDTO } from './dto/createUser.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/users.schema';
-import { Model, Types } from 'mongoose';
+import { Model, SortOrder, Types } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { randomInt } from 'node:crypto';
@@ -17,6 +17,7 @@ import { LoginUserDTO } from './dto/LoginUser.dto';
 import { RolesService } from '../roles/roles.service';
 import { SendGridClient } from 'src/email/sendgrid.client';
 import { ConfigService } from '@nestjs/config';
+import { FilterDTO } from './dto/filter.dto';
 
 @Injectable()
 export class UsersService {
@@ -35,17 +36,16 @@ export class UsersService {
   }
 
   async createUser(createUser: CreateUserDTO) {
+    const ifUserExists = await this.userModel.exists({
+      email: createUser.email,
+    });
+
+    if (ifUserExists) {
+      throw new InternalServerErrorException(
+        'User already exists with this email id.',
+      );
+    }
     try {
-      const ifUserExists = await this.userModel.findOne({
-        email: createUser.email,
-      });
-
-      if (ifUserExists) {
-        throw new InternalServerErrorException(
-          'User already exists with this email id.',
-        );
-      }
-
       const hashPassword = bcrypt.hashSync(
         `${randomInt(10000, 100000)}`,
         this.bcryptSalt,
@@ -134,7 +134,7 @@ export class UsersService {
         'welcomeMail.ejs',
         'User',
         email,
-        `${this.configService.getOrThrow("FRONTEND_URL")}forgotPassword?token=${token}`,
+        `${this.configService.getOrThrow('FRONTEND_URL')}forgotPassword?token=${token}`,
         'Reset Password',
       );
       return `Reset Password email sent at ${email}`;
@@ -197,6 +197,45 @@ export class UsersService {
       ]);
 
       return user.length ? user[0] : null;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async delete(id: string) {
+    try {
+      var user = await this.userModel.deleteOne({ _id: id });
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+    if (!user || user.deletedCount === 0)
+      throw new NotFoundException(`User with ${id} id not found`);
+
+    return `User with ${id} id deleted successfully.`;
+  }
+
+  async fetch(filterData: FilterDTO): Promise<User[]> {
+    try {
+      const filter: any = {};
+      if (filterData.searchFromEmail)
+        filter.email = { $regex: filterData.searchFromEmail, $options: 'i' };
+
+      const sortField = filterData.field || 'createdAt';
+      const sortOrder: SortOrder = Number(filterData.order) === -1 ? -1 : 1;
+
+      const sort = { [sortField]: sortOrder };
+
+      const data = await this.userModel
+        .find(filter)
+        .skip(filterData.skip || 0)
+        .sort(sort)
+        .limit(filterData.limit || 10)
+        .lean()
+        .exec();
+
+      return data;
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException();

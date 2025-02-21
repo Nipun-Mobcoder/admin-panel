@@ -15,7 +15,7 @@ export class ResponseInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest<Request>();
-    const response = context.switchToHttp().getRequest<Response>();
+    const response = context.switchToHttp().getResponse<Response>();
 
     const { method, url } = request;
     const startTime = Date.now();

@@ -1,6 +1,6 @@
 export enum Designation {
-  'Software Engineering Intern' = "INTERN" ,
-  'Software Engineer Trainee' = "TRAINEE",
+  'Software Engineering Intern' = 'INTERN',
+  'Software Engineer Trainee' = 'TRAINEE',
   'Assistant Software Development Engineer' = 'ASDE',
   'Software Development Engineer 1' = 'SDE1',
   'Software Development Engineer 2' = 'SDE2',

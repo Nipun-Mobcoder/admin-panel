@@ -24,7 +24,6 @@ export class AuthorizationGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly userService: UsersService,
-    private readonly roleService: RolesService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -56,14 +55,14 @@ export class AuthorizationGuard implements CanActivate {
     }
     const userPermissions = userRoles
       .filter((role: any) => role)
-      .flatMap((role: { permissions: any; }) => role?.permissions);
+      .flatMap((role: { permissions: any }) => role?.permissions);
     if (!userPermissions)
       throw new UnauthorizedException(
         `${userDetails.email} is not authorized to perform this action.`,
       );
     for (const routePermission of routePermissions) {
       const userPermission = userPermissions.find(
-        (userPermission: { resource: Resource; }) =>
+        (userPermission: { resource: Resource }) =>
           userPermission?.resource === routePermission.resource,
       );
       if (!userPermission) {

@@ -13,10 +13,10 @@ import { SendGridModule } from 'src/email/sendGrip.module';
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     RolesModule,
-    SendGridModule
+    SendGridModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [UsersService]
+  exports: [UsersService],
 })
 export class UsersModule {}

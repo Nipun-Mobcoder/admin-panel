@@ -10,32 +10,31 @@ import { Request, Response } from 'express';
 
 @Injectable()
 export class GlobalExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(GlobalExceptionFilter.name);
-  
-    catch(exception: any, host: ArgumentsHost) {
-      const ctx = host.switchToHttp();
-      const request = ctx.getRequest<Request>();
-      const response = ctx.getResponse<Response>();
-  
-      const status =
-        exception instanceof HttpException
-          ? exception.getStatus()
-          : HttpStatus.INTERNAL_SERVER_ERROR;
-      const message =
-        exception instanceof HttpException
-          ? exception.getResponse()
-          : 'Internal server Error';
-  
-      this.logger.error(
-        `Error: ${JSON.stringify(message)} | Path: ${request.url}`,
-      );
-  
-      response.status(status).json({
-        statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        message,
-      });
-    }
+  private readonly logger = new Logger(GlobalExceptionFilter.name);
+
+  catch(exception: any, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
+    const response = ctx.getResponse<Response>();
+
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const message =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : 'Internal server Error';
+
+    this.logger.error(
+      `Error: ${JSON.stringify(message)} | Path: ${request.url}`,
+    );
+
+    response.status(status).json({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      message,
+    });
   }
-  
+}

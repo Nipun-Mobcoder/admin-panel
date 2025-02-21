@@ -22,6 +22,6 @@ export class Permission {
 
   @IsEnum(Action, { each: true })
   @ArrayUnique()
-  @ApiProperty({ example: ["delete"]})
+  @ApiProperty({ example: ['delete'] })
   actions: Action[];
 }
