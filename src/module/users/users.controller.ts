@@ -43,10 +43,15 @@ export class UsersController {
     return this.usersService.login(loginUser);
   }
 
-  @Post('logout')
+  @Get('logout')
+  @UseGuards(AuthenticationGuard)
   @HttpCode(HttpStatus.OK)
-  async logout(@Body() logoutUser: UserEmailDTO) {
-    return this.usersService.logout(logoutUser.email);
+  async logout(@Req() request: Request) {
+    const userDetails = request.user;
+    if (!userDetails || !userDetails.id || !userDetails.email) {
+      throw new UnauthorizedException();
+    }
+    return this.usersService.logout(userDetails.email);
   }
 
   @Get('profile')
