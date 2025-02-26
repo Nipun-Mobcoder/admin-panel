@@ -6,15 +6,17 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { AuthenticationGuard } from 'src/guards/authentication.guard';
-import { CreateRoleDTO } from './dto/CreateRole.dto';
+import { CreateRoleDTO, Permission } from './dto/CreateRole.dto';
 import { Action } from 'src/common/enum/action.enum';
 import { Resource } from 'src/common/enum/resource.enum';
 import { Permissions } from 'src/decorators/permission.decorator';
 import { AuthorizationGuard } from 'src/guards/authorization.guard';
+import { UpdateRoleDTO } from './dto/UpdateRole.dto';
 
 @Controller('roles')
 @UseGuards(AuthenticationGuard)
@@ -35,6 +37,16 @@ export class RolesController {
   @HttpCode(HttpStatus.CREATED)
   async createRole(@Body() createRoleDTO: CreateRoleDTO) {
     return this.rolesService.createRole(createRoleDTO);
+  }
+
+  @Put('update')
+  @UseGuards(AuthenticationGuard, AuthorizationGuard)
+  @Permissions([
+    { resource: Resource.settings, actions: [Action.create, Action.update] },
+  ])
+  @HttpCode(HttpStatus.OK)
+  async updateRole(@Body() updateRoleDTO: UpdateRoleDTO) {
+    return this.rolesService.updateRole(updateRoleDTO);
   }
 
   @Get('fetch/:type')

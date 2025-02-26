@@ -1,5 +1,6 @@
 export enum Resource {
   settings = 'settings',
-  products = 'products',
+  projects = 'projects',
   users = 'users',
+  leavePolicy = 'leavePolicy'
 }

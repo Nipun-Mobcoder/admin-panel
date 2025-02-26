@@ -6,12 +6,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Permission, Roles } from './schema/roles.schema';
+import { Roles } from './schema/roles.schema';
 import { Model } from 'mongoose';
-import { CreateRoleDTO } from './dto/CreateRole.dto';
+import { CreateRoleDTO, Permission } from './dto/CreateRole.dto';
 import { Resource } from 'src/common/enum/resource.enum';
 import { Action } from 'src/common/enum/action.enum';
 import { ComapnyBranch } from 'src/common/enum/companyBranch.enum';
+import { UpdateRoleDTO } from './dto/UpdateRole.dto';
 
 @Injectable()
 export class RolesService {
@@ -85,6 +86,64 @@ export class RolesService {
         return Object.keys(ComapnyBranch);
       default:
         throw new InternalServerErrorException('Incorrect type fetching');
+    }
+  }
+
+  async updateRole(updateRoleDTO: UpdateRoleDTO) {
+    const role = await this.roleModel.findOne({ name: updateRoleDTO.name });
+
+    if (!role) {
+      throw new NotFoundException(`${updateRoleDTO.name} not found.`);
+    }
+
+    try {
+      let updatedPermissions = role.permissions || [];
+
+      const newPermissions: Permission[] = [];
+      updateRoleDTO.addRole.forEach((permission) => {
+        const existingPermission = updatedPermissions.find(
+          (existing) => existing.resource === permission.resource,
+        );
+
+        if (existingPermission) {
+          existingPermission.actions = Array.from(
+            new Set([...existingPermission.actions, ...permission.actions]),
+          );
+        } else {
+          newPermissions.push(permission);
+        }
+      });
+
+      updatedPermissions = [...updatedPermissions, ...newPermissions];
+
+      updateRoleDTO.deleteRole.forEach((removePermission) => {
+        const existingPermission = updatedPermissions.find(
+          (perm) => perm.resource === removePermission.resource,
+        );
+
+        if (existingPermission) {
+          existingPermission.actions = existingPermission.actions.filter(
+            (action) => !removePermission.actions.includes(action),
+          );
+
+          if (existingPermission.actions.length === 0) {
+            updatedPermissions = updatedPermissions.filter(
+              (perm) => perm.resource !== removePermission.resource,
+            );
+          }
+        }
+      });
+
+      const roleData = await this.roleModel.findOneAndUpdate(
+        { _id: role._id },
+        { permissions: updatedPermissions },
+        { new: true },
+      );
+
+      return roleData;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
     }
   }
 }

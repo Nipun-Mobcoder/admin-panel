@@ -6,6 +6,7 @@ import { UsersModule } from './module/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from './redis/redis.module';
 import { SendGridModule } from './email/sendGrip.module';
+import { LeavesModule } from './module/leaves/leaves.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SendGridModule } from './email/sendGrip.module';
     RedisModule,
     UsersModule,
     SendGridModule,
+    LeavesModule
   ],
 })
 export class AppModule {}

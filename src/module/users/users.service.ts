@@ -71,7 +71,7 @@ export class UsersService {
         phoneNumber: {
           countryCode: createUser.countryCode,
           number: createUser.phoneNumber,
-        }
+        },
       });
 
       await this.sendEmailForPassword(userData.email);
@@ -90,6 +90,8 @@ export class UsersService {
     const userData = await this.userModel
       .findOne({ email })
       .select('+password');
+    
+      console.log(new Date());
 
     if (!userData) {
       throw new NotFoundException(`User with email ${email} not found.`);
@@ -206,6 +208,19 @@ export class UsersService {
       this.logger.error(e);
       throw new InternalServerErrorException();
     }
+  }
+
+  async findUser(userId: string) {
+    try {
+      var user = await this.userModel.findById(userId);
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+    return user;
   }
 
   async delete(id: string) {

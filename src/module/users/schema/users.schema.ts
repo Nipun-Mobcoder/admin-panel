@@ -1,6 +1,7 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { ComapnyBranch } from 'src/common/enum/companyBranch.enum';
+import { leaveType } from 'src/common/enum/leaveType.enum';
 import { Roles } from 'src/module/roles/schema/roles.schema';
 
 export type UserDocument = mongoose.HydratedDocument<User>;
@@ -52,6 +53,13 @@ export class User {
 
   @Prop()
   address: mongoose.Schema.Types.Mixed;
+
+  @Prop({
+    type: Map,
+    of: Number,
+    required: true,
+  })
+  leaveApplied: Record<leaveType, number>;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
