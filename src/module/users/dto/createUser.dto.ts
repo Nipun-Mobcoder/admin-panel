@@ -8,6 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { ComapnyBranch } from 'src/common/enum/companyBranch.enum';
 import { Designation } from 'src/common/enum/designations.enum';
 
 class AddressDTO {
@@ -41,6 +42,10 @@ export class CreateUserDTO {
   @ApiProperty({ example: 'nipun@gmail.com' })
   email: string;
 
+  @IsString()
+  @ApiProperty({ example: "+91" })
+  countryCode: string;
+
   @IsNumber()
   @ApiProperty({ example: 8800225566 })
   phoneNumber: number;
@@ -53,6 +58,10 @@ export class CreateUserDTO {
   @IsEnum(Designation)
   @ApiProperty({ example: 'SDE1' })
   designation: Designation;
+
+  @IsEnum(ComapnyBranch)
+  @ApiProperty({ example: "India" })
+  branch: ComapnyBranch;
 
   @ValidateNested()
   @Type(() => AddressDTO)

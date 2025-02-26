@@ -11,6 +11,7 @@ import { Model } from 'mongoose';
 import { CreateRoleDTO } from './dto/CreateRole.dto';
 import { Resource } from 'src/common/enum/resource.enum';
 import { Action } from 'src/common/enum/action.enum';
+import { ComapnyBranch } from 'src/common/enum/companyBranch.enum';
 
 @Injectable()
 export class RolesService {
@@ -80,6 +81,8 @@ export class RolesService {
         return Object.values(Resource);
       case 'actions':
         return Object.values(Action);
+      case 'branch':
+        return Object.keys(ComapnyBranch);
       default:
         throw new InternalServerErrorException('Incorrect type fetching');
     }

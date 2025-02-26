@@ -1,5 +1,6 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { ComapnyBranch } from 'src/common/enum/companyBranch.enum';
 import { Roles } from 'src/module/roles/schema/roles.schema';
 
 export type UserDocument = mongoose.HydratedDocument<User>;
@@ -20,8 +21,13 @@ export class User {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ unique: true })
-  phoneNumber: string;
+  @Prop(
+    raw({
+      countryCode: { type: String },
+      number: { type: Number },
+    }),
+  )
+  phoneNumber: Record<string, any>;
 
   @Prop({ default: 0 })
   walletAmount: number;
@@ -40,6 +46,9 @@ export class User {
 
   @Prop()
   employeeStatus: string;
+
+  @Prop({ enum: ComapnyBranch, required: true })
+  branch: ComapnyBranch;
 
   @Prop()
   address: mongoose.Schema.Types.Mixed;

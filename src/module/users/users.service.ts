@@ -18,6 +18,7 @@ import { RolesService } from '../roles/roles.service';
 import { SendGridClient } from 'src/email/sendgrid.client';
 import { ConfigService } from '@nestjs/config';
 import { FilterDTO } from './dto/filter.dto';
+import { ComapnyBranch } from 'src/common/enum/companyBranch.enum';
 
 @Injectable()
 export class UsersService {
@@ -67,6 +68,10 @@ export class UsersService {
         password: hashPassword,
         walletAmount: 0,
         roles,
+        phoneNumber: {
+          countryCode: createUser.countryCode,
+          number: createUser.phoneNumber,
+        }
       });
 
       await this.sendEmailForPassword(userData.email);
