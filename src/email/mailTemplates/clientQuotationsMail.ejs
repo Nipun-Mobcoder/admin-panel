@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Quotation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #222;
+        text-align: center;
+      }
+      p {
+        color: #444;
+        line-height: 1.6;
+      }
+      .quotation-section {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-left: 4px solid #007bff;
+        border-radius: 5px;
+      }
+      .quotation-section h2 {
+        color: #007bff;
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      .quotation-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      .quotation-table th,
+      .quotation-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      .quotation-table th {
+        background-color: #007bff;
+        color: #fff;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 12px;
+        color: #777;
+      }
+      .button {
+        display: inline-block;
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+      .button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Project Quotation</h1>
+      <p>
+        Thank you for your interest in collaborating with us. Below, you will find the estimated quotation for your project. If you have any questions or require adjustments, feel free to reach out.
+      </p>
+
+        <div class="quotation-section">
+            <% quotations.forEach((quotationList, budgetIndex) => { %>
+                <h2>Budget: <%= budgets[budgetIndex] %></h2>
+                
+                <% quotationList.forEach((quotation, quotationIndex) => { %>
+                  <h3>Quotation <%= quotationIndex + 1 %></h3>
+                  <table class="quotation-table">
+                    <thead>
+                      <tr>
+                        <th>Role</th>
+                        <th>Quantity</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% Object.keys(quotation).forEach(role => { %>
+                        <tr>
+                          <td><%= role %></td>
+                          <td><%= quotation[role] %></td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                <% }); %>
+              
+              <% }); %>
+              
+              <p style="text-align: center">
+                <a href="<%= acceptLink %>" class="button">Accept Quotation</a>
+              </p>
+              
+
+      <div class="footer">
+        <p>&copy; 2025 Mobcoders. All Rights Reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

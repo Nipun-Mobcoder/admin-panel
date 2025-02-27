@@ -24,7 +24,9 @@ export class AuthenticationGuard implements CanActivate {
 
     const authHeader = request.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer')) {
-      throw new UnauthorizedException('User not authenticated.');
+      throw new UnauthorizedException(
+        'User not authenticated. Token is missing',
+      );
     }
 
     const token = authHeader.split(' ')?.[1];
@@ -38,7 +40,9 @@ export class AuthenticationGuard implements CanActivate {
     const decoded = this.jwtService.decode(token);
 
     if (!decoded || !decoded.email || !decoded.id) {
-      throw new NotFoundException('User details are misssing');
+      throw new UnauthorizedException(
+        'Token is incorrect. Please try to authenticate again.',
+      );
     }
 
     const redisToken = await this.redisService.get<string>(

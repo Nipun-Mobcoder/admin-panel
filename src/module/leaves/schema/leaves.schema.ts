@@ -29,17 +29,15 @@ export class Leave {
 export const LeaveSchema = SchemaFactory.createForClass(Leave);
 
 LeaveSchema.pre('findOneAndUpdate', function (next) {
-    const update = this.getUpdate() as any;
-  
-    if(!update)
-        next();
+  const update = this.getUpdate() as any;
 
-    if (update.status === 'Declined' && !update.declinedAt) {
-      update.declinedAt = new Date();
-    }
-  
-    this.setUpdate(update);
-  
-    next();
-  });
-  
+  if (!update) next();
+
+  if (update.status === 'Declined' && !update.declinedAt) {
+    update.declinedAt = new Date();
+  }
+
+  this.setUpdate(update);
+
+  next();
+});

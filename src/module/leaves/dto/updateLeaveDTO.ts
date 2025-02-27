@@ -1,9 +1,9 @@
-import { IsEnum, IsString } from "class-validator";
+import { IsEnum, IsString } from 'class-validator';
 
 export class UpdateLeaveDTO {
-    @IsString()
-    leaveId: string;
+  @IsString()
+  leaveId: string;
 
-    @IsEnum(['Accepted', 'Declined'])
-    status: 'Accepted' | 'Declined'
+  @IsEnum(['Accepted', 'Declined'])
+  status: 'Accepted' | 'Declined';
 }

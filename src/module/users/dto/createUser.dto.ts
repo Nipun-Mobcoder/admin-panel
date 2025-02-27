@@ -43,7 +43,7 @@ export class CreateUserDTO {
   email: string;
 
   @IsString()
-  @ApiProperty({ example: "+91" })
+  @ApiProperty({ example: '+91' })
   countryCode: string;
 
   @IsNumber()
@@ -60,7 +60,7 @@ export class CreateUserDTO {
   designation: Designation;
 
   @IsEnum(ComapnyBranch)
-  @ApiProperty({ example: "India" })
+  @ApiProperty({ example: 'India' })
   branch: ComapnyBranch;
 
   @ValidateNested()

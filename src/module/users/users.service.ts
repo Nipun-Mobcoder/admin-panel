@@ -90,8 +90,8 @@ export class UsersService {
     const userData = await this.userModel
       .findOne({ email })
       .select('+password');
-    
-      console.log(new Date());
+
+    console.log(new Date());
 
     if (!userData) {
       throw new NotFoundException(`User with email ${email} not found.`);
