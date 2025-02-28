@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -18,7 +19,8 @@ import { RolesService } from '../roles/roles.service';
 import { SendGridClient } from 'src/email/sendgrid.client';
 import { ConfigService } from '@nestjs/config';
 import { FilterDTO } from './dto/filter.dto';
-import { ComapnyBranch } from 'src/common/enum/companyBranch.enum';
+import { Designation } from 'src/common/enum/designations.enum';
+import { AssignRoleDTO } from './dto/assignRole.dto';
 
 @Injectable()
 export class UsersService {
@@ -47,10 +49,7 @@ export class UsersService {
       );
     }
     try {
-      const hashPassword = bcrypt.hashSync(
-        `${randomInt(10000, 100000)}`,
-        this.bcryptSalt,
-      );
+      const hashPassword = bcrypt.hashSync(`12345678`, this.bcryptSalt);
 
       let roles: any = [];
       if (createUser.roles && createUser.roles.length !== 0) {
@@ -90,8 +89,6 @@ export class UsersService {
     const userData = await this.userModel
       .findOne({ email })
       .select('+password');
-
-    console.log(new Date());
 
     if (!userData) {
       throw new NotFoundException(`User with email ${email} not found.`);
@@ -139,10 +136,13 @@ export class UsersService {
       await this.redisService.set(`resetToken:${email}`, token, '1h');
       await this.sendGridClient.send(
         'welcomeMail.ejs',
-        'User',
         email,
-        `${this.configService.getOrThrow('FRONTEND_URL')}forgotPassword?token=${token}`,
         'Reset Password',
+        {
+          userName: userDetails.userName?.firstName || 'User',
+          email,
+          url: `${this.configService.getOrThrow('FRONTEND_URL')}forgotPassword?token=${token}`,
+        },
       );
       return `Reset Password email sent at ${email}`;
     } catch (error) {
@@ -237,25 +237,74 @@ export class UsersService {
   }
 
   async fetch(filterData: FilterDTO): Promise<User[]> {
+    const filter: any = {};
+    if (filterData.searchFromEmail)
+      filter.email = {
+        $regex: filterData.searchFromEmail,
+        $options: 'i',
+        $ne: 'nipunbhardwaj11@gmail.com',
+      };
+    // else
+    //   filter.email = { $ne: 'nipunbhardwaj11@gmail.com' };
+
+    if (
+      (filterData.skip && isNaN(Number(filterData.skip))) ||
+      (filterData.limit && isNaN(Number(filterData.limit)))
+    ) {
+      throw new BadRequestException('Skip or Limit is not a number.');
+    }
+
+    const sortField = filterData.field || 'createdAt';
+    const sortOrder: SortOrder = Number(filterData.order) === -1 ? -1 : 1;
+
+    const sort = { [sortField]: sortOrder };
     try {
-      const filter: any = {};
-      if (filterData.searchFromEmail)
-        filter.email = { $regex: filterData.searchFromEmail, $options: 'i' };
-
-      const sortField = filterData.field || 'createdAt';
-      const sortOrder: SortOrder = Number(filterData.order) === -1 ? -1 : 1;
-
-      const sort = { [sortField]: sortOrder };
-
       const data = await this.userModel
         .find(filter)
-        .skip(filterData.skip || 0)
+        .skip(Number(filterData.skip) || 0)
         .sort(sort)
-        .limit(filterData.limit || 10)
+        .limit(Number(filterData.limit) || 10)
+        .populate('roles', { name: true })
         .lean()
         .exec();
 
       return data;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async findByDesignation(designation: Designation) {
+    try {
+      const users = await this.userModel.find({ designation });
+      return users;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async assignRole(assignRoleDto: AssignRoleDTO) {
+    try {
+      const ifUserExists = await this.userModel.findOne({
+        email: assignRoleDto.email,
+      });
+      if (!ifUserExists) {
+        throw new NotFoundException(
+          `User with the email ${assignRoleDto.email} not found.`,
+        );
+      }
+
+      const existingRoles = ifUserExists.roles;
+      const updatedRoles = new Set([...existingRoles, ...assignRoleDto.roles]);
+
+      const updateduser = await this.userModel.findOneAndUpdate(
+        { _id: ifUserExists._id },
+        { roles: updatedRoles },
+        { new: true },
+      );
+      return updateduser;
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException();

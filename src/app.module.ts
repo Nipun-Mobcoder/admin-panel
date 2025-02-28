@@ -8,6 +8,7 @@ import { RedisModule } from './redis/redis.module';
 import { SendGridModule } from './email/sendGrip.module';
 import { LeavesModule } from './module/leaves/leaves.module';
 import { ProjectsModule } from './module/projects/projects.module';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ProjectsModule } from './module/projects/projects.module';
     SendGridModule,
     LeavesModule,
     ProjectsModule,
+    KafkaModule,
   ],
 })
 export class AppModule {}

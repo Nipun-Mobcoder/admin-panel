@@ -18,6 +18,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { ConfirmProjectDTO } from './dto/confirmProject.dto';
 import { UsersService } from '../users/users.service';
+import { KafkaService } from 'src/kafka/kafka.service';
+import { Designation } from 'src/common/enum/designations.enum';
 
 @Injectable()
 export class ProjectsService {
@@ -31,6 +33,7 @@ export class ProjectsService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly userService: UsersService,
+    private readonly kafkaService: KafkaService,
   ) {
     this.logger = new Logger(ProjectsService.name);
   }
@@ -94,7 +97,7 @@ export class ProjectsService {
         ),
       );
 
-      await this.sendGridClient.sendQuotation(
+      await this.sendGridClient.send(
         'clientQuotationsMail.ejs',
         createProjectDTO.clientEmail,
         'Quotations to the client',
@@ -137,6 +140,9 @@ export class ProjectsService {
     }
     try {
       var project = await this.projectModel.findById(id);
+      var projectManagers = await this.userService.findByDesignation(
+        Designation['Project Manager'],
+      );
     } catch (error) {
       this.logger.error(error);
       throw new InternalServerErrorException();
@@ -144,8 +150,16 @@ export class ProjectsService {
     if (!project) throw new NotFoundException(`Project not found.`);
 
     const projectQuota = await this.getPolicy(project.budget);
+    const projectManagerInfo = projectManagers.map((projectManager) => {
+      return {
+        userName: projectManager.userName,
+        phoneNumber: projectManager.phoneNumber,
+        email: projectManager.email,
+        branch: projectManager.branch,
+      };
+    });
 
-    return { project, projectQuota };
+    return { project, projectQuota, projectManagerInfo };
   }
 
   async confirmProject(confirmProjectDTO: ConfirmProjectDTO) {
@@ -183,9 +197,21 @@ export class ProjectsService {
 
     const updatedData = await this.projectModel.findOneAndUpdate(
       { _id: id },
-      { ...confirmProjectDTO, projectLead },
+      { ...confirmProjectDTO, projectLead, startDate: new Date(), status: confirmProjectDTO.projectStatus },
       { new: true },
     );
+
+    this.kafkaService.produceMessage({
+      userId: projectLead.id,
+      message: {
+        projectName: updatedData?.projectName,
+        proposedDuration: updatedData?.proposedDuration,
+        techStack: updatedData?.techStack,
+        quotation: updatedData?.chosenQuotation,
+        clientEmail: updatedData?.clientEmail,
+        description: updatedData?.description,
+      },
+    });
 
     return updatedData;
   }

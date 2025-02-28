@@ -26,7 +26,7 @@ export class Project {
   projectMembers: User[];
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: () => User })
-  projectLead: User[];
+  projectLead: User;
 
   @Prop()
   clientEmail: string;

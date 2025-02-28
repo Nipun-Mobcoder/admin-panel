@@ -25,6 +25,7 @@ import { Resource } from 'src/common/enum/resource.enum';
 import { Action } from 'src/common/enum/action.enum';
 import { ResetAuthenticationGuard } from 'src/guards/resetAuthentication.guard';
 import { FilterDTO } from './dto/filter.dto';
+import { AssignRoleDTO } from './dto/assignRole.dto';
 
 @Controller('users')
 export class UsersController {
@@ -102,5 +103,13 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   async fetch(@Query() filter: FilterDTO) {
     return this.usersService.fetch(filter);
+  }
+
+  @Post('assignRole')
+  @UseGuards(AuthenticationGuard, AuthorizationGuard)
+  @Permissions([{ resource: Resource.users, actions: [Action.update] }])
+  @HttpCode(HttpStatus.OK)
+  async assignRole(@Body() assignRoleDTO: AssignRoleDTO) {
+    return this.usersService.assignRole(assignRoleDTO);
   }
 }

@@ -8,6 +8,7 @@ import {
   ProjectPolicySchema,
 } from './schema/projectPolicy.schema';
 import { SendGridModule } from 'src/email/sendGrip.module';
+import { KafkaModule } from 'src/kafka/kafka.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SendGridModule } from 'src/email/sendGrip.module';
       { name: ProjectPolicy.name, schema: ProjectPolicySchema },
     ]),
     SendGridModule,
+    KafkaModule,
   ],
   controllers: [ProjectsController],
   providers: [ProjectsService],

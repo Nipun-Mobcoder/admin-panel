@@ -13,43 +13,11 @@ export class SendGridClient {
 
   async send(
     fileName: string,
-    userName: string,
-    email: string,
-    url: string,
-    subject: string,
-  ): Promise<void> {
-    try {
-      const templatePath = path.join(__dirname, 'mailTemplates', fileName);
-      const emailHTML = await ejs.renderFile(templatePath, {
-        userName,
-        email,
-        url,
-      });
-      const mail = {
-        to: email,
-        from: {
-          name: 'Admin',
-          email: this.configService.getOrThrow('ADMIN_EMAIL'),
-        },
-        subject,
-        html: emailHTML,
-      };
-      await SendGrid.send(mail);
-      this.logger.log(`Email successfully dispatched to ${mail.to as string}`);
-    } catch (error) {
-      this.logger.error('Error while sending email', error);
-      throw error;
-    }
-  }
-
-  async sendQuotation(
-    fileName: string,
     email: string,
     subject: string,
     data: Record<string, any>,
   ): Promise<void> {
     try {
-      console.log(data.quotations);
       const templatePath = path.join(__dirname, 'mailTemplates', fileName);
       const emailHTML = await ejs.renderFile(templatePath, data);
 

@@ -1,5 +1,6 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { defaultLeaves } from 'src/common/constant/defaultLeaves';
 import { ComapnyBranch } from 'src/common/enum/companyBranch.enum';
 import { leaveType } from 'src/common/enum/leaveType.enum';
 import { Project } from 'src/module/projects/schema/project.schema';
@@ -58,7 +59,7 @@ export class User {
   @Prop({
     type: Map,
     of: Number,
-    required: true,
+    default: defaultLeaves
   })
   leaveApplied: Record<leaveType, number>;
 
