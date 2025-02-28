@@ -16,6 +16,7 @@ import { AuthorizationGuard } from 'src/guards/authorization.guard';
 import { createPolicyDTO } from './dto/createPolicy.dto';
 import { CreateProjectDTO } from './dto/createProject.dto';
 import { ConfirmProjectDTO } from './dto/confirmProject.dto';
+import { AssignMembersDTO } from './dto/assignMembers.dto';
 
 @Controller('projects')
 @UseGuards(AuthenticationGuard, AuthorizationGuard)
@@ -34,7 +35,7 @@ export class ProjectsController {
     return this.projectsService.createProject(createProjectDTO);
   }
 
-  @Get(':projectName')
+  @Get('get/:projectName')
   @Permissions([{ resource: Resource.projects, actions: [Action.read] }])
   async getProject(@Param('projectName') projectName: string) {
     return this.projectsService.getProject(projectName);
@@ -50,5 +51,17 @@ export class ProjectsController {
   @Permissions([{ resource: Resource.projects, actions: [Action.update] }])
   async confirmProject(@Body() confirmProjectDTO: ConfirmProjectDTO) {
     return this.projectsService.confirmProject(confirmProjectDTO);
+  }
+
+  @Get('getUsers')
+  @Permissions([{ resource: Resource.projects, actions: [Action.read, Action.update] }])
+  async getUsersAccToDesignation() {
+    return this.projectsService.getUsersAccToDesignation();
+  }
+
+  @Post('assignUsers')
+  @Permissions([{ resource: Resource.projects, actions: [Action.update] }])
+  async assignUsers(assignMembersDTO: AssignMembersDTO) {
+    return this.projectsService.assignUsers(assignMembersDTO);
   }
 }

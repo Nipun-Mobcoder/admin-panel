@@ -20,6 +20,7 @@ import { ConfirmProjectDTO } from './dto/confirmProject.dto';
 import { UsersService } from '../users/users.service';
 import { KafkaService } from 'src/kafka/kafka.service';
 import { Designation } from 'src/common/enum/designations.enum';
+import { AssignMembersDTO } from './dto/assignMembers.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -206,9 +207,10 @@ export class ProjectsService {
       { new: true },
     );
 
-    this.kafkaService.produceMessage({
+    await this.kafkaService.produceMessage({
       userId: projectLead.id,
       message: {
+        type: 'Project Assigned',
         projectName: updatedData?.projectName,
         proposedDuration: updatedData?.proposedDuration,
         techStack: updatedData?.techStack,
@@ -217,6 +219,75 @@ export class ProjectsService {
         description: updatedData?.description,
       },
     });
+
+    return updatedData;
+  }
+
+  async getUsersAccToDesignation() {
+    try {
+      const users = await this.userService.fetch({
+        field: '',
+        order: 1,
+      });
+
+      const designations = {
+        INTERN: Designation['Software Engineering Intern'],
+        TRAINEE: Designation['Software Engineer Trainee'],
+        ASDE: Designation['Assistant Software Development Engineer'],
+        SDE1: Designation['Software Development Engineer 1'],
+        SDE2: Designation['Software Development Engineer 2'],
+        SDE3: Designation['Software Development Engineer 3'],
+        ARCHITECT: Designation['Software Architect'],
+      };
+
+      const groupedUsers = Object.keys(designations).reduce(
+        (acc, key) => {
+          acc[key] = users.filter(
+            (user) => user.designation === designations[key],
+          );
+          return acc;
+        },
+        {} as Record<string, typeof users>,
+      );
+
+      return groupedUsers;
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async assignUsers(assignMembersDTO: AssignMembersDTO) {
+    const project = await this.projectModel.findOne({
+      projectName: assignMembersDTO.projectName,
+    });
+    if (!project)
+      throw new NotFoundException(
+        `Project ${assignMembersDTO.projectName} not found.`,
+      );
+
+    const users = await Promise.all(
+      assignMembersDTO.users.map(async (user) => {
+        const userDetails = await Promise.all(
+          user.userIDs.map(async (userId) =>
+            this.userService.assignProject(
+              assignMembersDTO.projectName,
+              userId.toString(),
+            ),
+          ),
+        );
+        return {
+          designation: user.designation,
+          users: userDetails,
+        };
+      }),
+    );
+
+    const updatedData = await this.projectModel.updateOne(
+      { _id: project.id },
+      { projectMembers: users },
+      { new: true },
+    );
 
     return updatedData;
   }

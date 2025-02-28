@@ -4,6 +4,7 @@ import { LeavesController } from './leaves.controller';
 import { Leave, LeaveSchema } from './schema/leaves.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LeavePolicy, LeavePolicySchema } from './schema/leavePolicy.schema';
+import { KafkaModule } from 'src/kafka/kafka.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { LeavePolicy, LeavePolicySchema } from './schema/leavePolicy.schema';
       { name: Leave.name, schema: LeaveSchema },
       { name: LeavePolicy.name, schema: LeavePolicySchema },
     ]),
+    KafkaModule,
   ],
   controllers: [LeavesController],
   providers: [LeavesService],

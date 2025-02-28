@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsDate, IsEnum, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { leaveType } from 'src/common/enum/leaveType.enum';
 
 export class ReqLeaveDTO {
@@ -14,4 +20,8 @@ export class ReqLeaveDTO {
   @IsDate({ each: true })
   @ApiProperty()
   days: Date[];
+
+  @IsString()
+  @ApiProperty()
+  reason: string;
 }

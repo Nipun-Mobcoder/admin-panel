@@ -21,6 +21,8 @@ import { ConfigService } from '@nestjs/config';
 import { FilterDTO } from './dto/filter.dto';
 import { Designation } from 'src/common/enum/designations.enum';
 import { AssignRoleDTO } from './dto/assignRole.dto';
+import { UpdateLeaveDTO } from './dto/updateLeave.dto';
+import { ProjectsService } from '../projects/projects.service';
 
 @Injectable()
 export class UsersService {
@@ -34,6 +36,7 @@ export class UsersService {
     private readonly rolesService: RolesService,
     private readonly sendGridClient: SendGridClient,
     private readonly configService: ConfigService,
+    private readonly projectService: ProjectsService,
   ) {
     this.bcryptSalt = bcrypt.genSaltSync(10);
   }
@@ -242,10 +245,13 @@ export class UsersService {
       filter.email = {
         $regex: filterData.searchFromEmail,
         $options: 'i',
-        $ne: 'nipunbhardwaj11@gmail.com',
       };
-    // else
-    //   filter.email = { $ne: 'nipunbhardwaj11@gmail.com' };
+
+    const admin = await this.rolesService.getRole('admin');
+
+    filter.roles = {
+      $ne: admin._id,
+    };
 
     if (
       (filterData.skip && isNaN(Number(filterData.skip))) ||
@@ -305,6 +311,48 @@ export class UsersService {
         { new: true },
       );
       return updateduser;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updateLeaves(updateLeaveDTO: UpdateLeaveDTO) {
+    try {
+      const user = await this.userModel.findOne({
+        email: updateLeaveDTO.userEmail,
+      });
+      if (!user)
+        throw new NotFoundException(
+          `User with the email ${updateLeaveDTO.userEmail} not found.`,
+        );
+
+      const { leaveType, days } = updateLeaveDTO;
+      const updateData = await this.userModel.updateOne(
+        { _id: user.id },
+        { $inc: { [`leaveApplied.${leaveType}`]: days } },
+        { new: true },
+      );
+      return updateData;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async assignProject(projectName: string, userID: string) {
+    try {
+      const user = await this.userModel.findById(userID);
+      if (!user)
+        throw new NotFoundException(`User not found.`);
+
+      const { project } = await this.projectService.getProject(projectName);
+      const updateData = await this.userModel.updateOne(
+        { _id: user.id },
+        { currentProject: project },
+        { new: true },
+      );
+      return updateData;
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException();

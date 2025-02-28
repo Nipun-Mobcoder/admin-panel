@@ -24,7 +24,7 @@ export class RolesService {
 
   async getRole(roleName: string) {
     try {
-      var role = this.roleModel.findOne({ name: roleName });
+      var role = await this.roleModel.findOne({ name: roleName });
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException();
@@ -36,7 +36,7 @@ export class RolesService {
 
   async getRoleByID(roleId: string) {
     try {
-      var role = this.roleModel.findById({ id: roleId });
+      var role = await this.roleModel.findById({ id: roleId });
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException();

@@ -15,6 +15,8 @@ import { CreateLeavePolicyDTO } from './dto/createLeavePolicy.dto';
 import { ReqLeaveDTO } from './dto/ReqLeave.dto';
 import { UsersService } from '../users/users.service';
 import { UpdateLeaveDTO } from './dto/updateLeaveDTO';
+import { KafkaService } from 'src/kafka/kafka.service';
+import { leaveType } from 'src/common/enum/leaveType.enum';
 
 @Injectable()
 export class LeavesService {
@@ -24,6 +26,7 @@ export class LeavesService {
     @InjectModel(LeavePolicy.name)
     private readonly LeavePolicyModel: Model<LeavePolicy>,
     private readonly userService: UsersService,
+    private readonly kafkaService: KafkaService,
   ) {}
 
   async getLeaveQuotaByDesignation(
@@ -62,11 +65,32 @@ export class LeavesService {
       throw new BadRequestException();
     }
 
+    const hrDetails = await this.userService.findByDesignation(
+      Designation['Human Resource'],
+    );
+    if (!hrDetails) {
+      throw new NotFoundException(
+        'No currenct HR is available to look at your request please try again after a period of time.',
+      );
+    }
+
     try {
       const applyLeave = await this.LeaveModel.create({
         ...reqLeave,
         status: 'Progress',
         user,
+      });
+
+      await this.kafkaService.produceMessage({
+        userId: hrDetails[0].id,
+        message: {
+          type: 'Leave Application',
+          user: {
+            userName: `${user.userName.firstName} ${user.userName.lastName}`,
+            email: user.email,
+            ...reqLeave,
+          },
+        },
       });
 
       return {
@@ -81,9 +105,9 @@ export class LeavesService {
 
   async updateLeave(updateLeave: UpdateLeaveDTO) {
     try {
-      const leaveData = await this.LeaveModel.exists({
-        _id: updateLeave.leaveId,
-      });
+      const leaveData = await this.LeaveModel.findById(
+        updateLeave.leaveId,
+      ).populate('user');
       if (!leaveData) {
         throw new NotFoundException('Leave not found.');
       }
@@ -93,6 +117,13 @@ export class LeavesService {
         { status: updateLeave.status },
         { new: true },
       );
+
+      if (updateLeave.status === 'Accepted')
+        await this.userService.updateLeaves({
+          userEmail: leaveData.user.email,
+          days: leaveData.days.length,
+          leaveType: leaveData.leaveType,
+        });
 
       return updatedLeaveData;
     } catch (error) {

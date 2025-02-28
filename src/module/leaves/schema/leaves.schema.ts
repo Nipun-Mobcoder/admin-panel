@@ -22,6 +22,9 @@ export class Leave {
   })
   user: User;
 
+  @Prop()
+  reason: string;
+
   @Prop({ type: Date, index: { expireAfterSeconds: 10 }, default: null })
   declinedAt?: Date;
 }
