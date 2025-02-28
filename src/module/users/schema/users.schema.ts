@@ -59,7 +59,7 @@ export class User {
   @Prop({
     type: Map,
     of: Number,
-    default: defaultLeaves
+    default: defaultLeaves,
   })
   leaveApplied: Record<leaveType, number>;
 

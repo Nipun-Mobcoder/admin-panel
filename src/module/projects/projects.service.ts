@@ -197,7 +197,12 @@ export class ProjectsService {
 
     const updatedData = await this.projectModel.findOneAndUpdate(
       { _id: id },
-      { ...confirmProjectDTO, projectLead, startDate: new Date(), status: confirmProjectDTO.projectStatus },
+      {
+        ...confirmProjectDTO,
+        projectLead,
+        startDate: new Date(),
+        status: confirmProjectDTO.projectStatus,
+      },
       { new: true },
     );
 

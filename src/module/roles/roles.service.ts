@@ -83,7 +83,7 @@ export class RolesService {
       case 'actions':
         return Object.values(Action);
       case 'branch':
-        return Object.keys(ComapnyBranch);
+        return Object.values(ComapnyBranch);
       default:
         throw new InternalServerErrorException('Incorrect type fetching');
     }

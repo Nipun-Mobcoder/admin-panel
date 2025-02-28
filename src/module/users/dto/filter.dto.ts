@@ -5,12 +5,12 @@ import { SortOrder } from 'mongoose';
 export class FilterDTO {
   @IsOptional()
   @IsString()
-  @ApiProperty({ example: "nipun@gmail.com" })
+  @ApiProperty({ example: 'nipun@gmail.com' })
   searchFromEmail?: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty({ example: "createdAt" })
+  @ApiProperty({ example: 'createdAt' })
   field: string;
 
   @IsOptional()
