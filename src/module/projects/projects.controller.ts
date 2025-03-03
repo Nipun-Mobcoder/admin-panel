@@ -54,7 +54,9 @@ export class ProjectsController {
   }
 
   @Get('getUsers')
-  @Permissions([{ resource: Resource.projects, actions: [Action.read, Action.update] }])
+  @Permissions([
+    { resource: Resource.projects, actions: [Action.read, Action.update] },
+  ])
   async getUsersAccToDesignation() {
     return this.projectsService.getUsersAccToDesignation();
   }

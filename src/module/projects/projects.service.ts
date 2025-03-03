@@ -270,10 +270,7 @@ export class ProjectsService {
       assignMembersDTO.users.map(async (user) => {
         const userDetails = await Promise.all(
           user.userIDs.map(async (userId) =>
-            this.userService.assignProject(
-              assignMembersDTO.projectName,
-              userId.toString(),
-            ),
+            this.userService.assignProject(project, userId.toString()),
           ),
         );
         return {

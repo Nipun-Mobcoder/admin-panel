@@ -22,7 +22,7 @@ import { FilterDTO } from './dto/filter.dto';
 import { Designation } from 'src/common/enum/designations.enum';
 import { AssignRoleDTO } from './dto/assignRole.dto';
 import { UpdateLeaveDTO } from './dto/updateLeave.dto';
-import { ProjectsService } from '../projects/projects.service';
+import { Project } from '../projects/schema/project.schema';
 
 @Injectable()
 export class UsersService {
@@ -36,7 +36,6 @@ export class UsersService {
     private readonly rolesService: RolesService,
     private readonly sendGridClient: SendGridClient,
     private readonly configService: ConfigService,
-    private readonly projectService: ProjectsService,
   ) {
     this.bcryptSalt = bcrypt.genSaltSync(10);
   }
@@ -340,13 +339,11 @@ export class UsersService {
     }
   }
 
-  async assignProject(projectName: string, userID: string) {
+  async assignProject(project: Project, userID: string) {
     try {
       const user = await this.userModel.findById(userID);
-      if (!user)
-        throw new NotFoundException(`User not found.`);
+      if (!user) throw new NotFoundException(`User not found.`);
 
-      const { project } = await this.projectService.getProject(projectName);
       const updateData = await this.userModel.updateOne(
         { _id: user.id },
         { currentProject: project },
