@@ -105,7 +105,7 @@ export class ProjectsService {
         {
           budgets,
           quotations,
-          acceptLink: `${this.configService.getOrThrow('FRONTEND_URL')}forgotPassword?token=${token}`,
+          acceptLink: `${this.configService.getOrThrow('FRONTEND_URL')}quotation/accept?token=${token}`,
         },
       );
 
@@ -153,6 +153,7 @@ export class ProjectsService {
     const projectQuota = await this.getPolicy(project.budget);
     const projectManagerInfo = projectManagers.map((projectManager) => {
       return {
+        id: projectManager.id,
         userName: projectManager.userName,
         phoneNumber: projectManager.phoneNumber,
         email: projectManager.email,

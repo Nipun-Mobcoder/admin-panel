@@ -19,36 +19,36 @@ import { ConfirmProjectDTO } from './dto/confirmProject.dto';
 import { AssignMembersDTO } from './dto/assignMembers.dto';
 
 @Controller('projects')
-@UseGuards(AuthenticationGuard, AuthorizationGuard)
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post('create/policy')
   @Permissions([{ resource: Resource.projects, actions: [Action.create] }])
+  @UseGuards(AuthenticationGuard, AuthorizationGuard)
   async createPolicy(@Body() createPolicyDTO: createPolicyDTO[]) {
     return this.projectsService.createPolicy(createPolicyDTO);
   }
 
   @Post()
   @Permissions([{ resource: Resource.projects, actions: [Action.create] }])
+  @UseGuards(AuthenticationGuard, AuthorizationGuard)
   async createProject(@Body() createProjectDTO: CreateProjectDTO) {
     return this.projectsService.createProject(createProjectDTO);
   }
 
   @Get('get/:projectName')
   @Permissions([{ resource: Resource.projects, actions: [Action.read] }])
+  @UseGuards(AuthenticationGuard, AuthorizationGuard)
   async getProject(@Param('projectName') projectName: string) {
     return this.projectsService.getProject(projectName);
   }
 
   @Get('projectInfo/:token')
-  @Permissions([{ resource: Resource.projects, actions: [Action.read] }])
   async getProjectInfo(@Param('token') token: string) {
     return this.projectsService.getProjectInfo(token);
   }
 
   @Patch('confirmProject')
-  @Permissions([{ resource: Resource.projects, actions: [Action.update] }])
   async confirmProject(@Body() confirmProjectDTO: ConfirmProjectDTO) {
     return this.projectsService.confirmProject(confirmProjectDTO);
   }
@@ -57,12 +57,14 @@ export class ProjectsController {
   @Permissions([
     { resource: Resource.projects, actions: [Action.read, Action.update] },
   ])
+  @UseGuards(AuthenticationGuard, AuthorizationGuard)
   async getUsersAccToDesignation() {
     return this.projectsService.getUsersAccToDesignation();
   }
 
   @Post('assignUsers')
   @Permissions([{ resource: Resource.projects, actions: [Action.update] }])
+  @UseGuards(AuthenticationGuard, AuthorizationGuard)
   async assignUsers(assignMembersDTO: AssignMembersDTO) {
     return this.projectsService.assignUsers(assignMembersDTO);
   }
