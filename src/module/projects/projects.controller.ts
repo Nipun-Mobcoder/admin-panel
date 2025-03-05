@@ -65,7 +65,7 @@ export class ProjectsController {
   @Post('assignUsers')
   @Permissions([{ resource: Resource.projects, actions: [Action.update] }])
   @UseGuards(AuthenticationGuard, AuthorizationGuard)
-  async assignUsers(assignMembersDTO: AssignMembersDTO) {
+  async assignUsers(@Body() assignMembersDTO: AssignMembersDTO) {
     return this.projectsService.assignUsers(assignMembersDTO);
   }
 }

@@ -21,6 +21,7 @@ import { UsersService } from '../users/users.service';
 import { KafkaService } from 'src/kafka/kafka.service';
 import { Designation } from 'src/common/enum/designations.enum';
 import { AssignMembersDTO } from './dto/assignMembers.dto';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class ProjectsService {
@@ -35,6 +36,7 @@ export class ProjectsService {
     private readonly jwtService: JwtService,
     private readonly userService: UsersService,
     private readonly kafkaService: KafkaService,
+    private readonly redisService: RedisService,
   ) {
     this.logger = new Logger(ProjectsService.name);
   }
@@ -90,6 +92,7 @@ export class ProjectsService {
       const token = await this.jwtService.signAsync({
         id: project.id,
       });
+      await this.redisService.set(`projectToken${project.id}`, token);
 
       const budgets = projectQuota.map((project) => project.budget);
       const quotations = projectQuota.map((project) =>
@@ -125,16 +128,14 @@ export class ProjectsService {
     }
     if (!project)
       throw new NotFoundException(`Project ${projectName} not found.`);
-    const token = await this.jwtService.signAsync({
-      id: project.id,
-    });
 
-    return { project, token };
+    return project;
   }
 
   async getProjectInfo(token: string) {
     const { id } = await this.jwtService.decode(token);
-    if (!id) {
+    const redisToken = await this.redisService.get(`projectToken${id}`);
+    if (!id || !redisToken || id !== redisToken) {
       throw new UnauthorizedException(
         'User is unauthorized to perform this action.',
       );
@@ -166,7 +167,8 @@ export class ProjectsService {
 
   async confirmProject(confirmProjectDTO: ConfirmProjectDTO) {
     const { id } = await this.jwtService.decode(confirmProjectDTO.token);
-    if (!id) {
+    const redisToken = await this.redisService.get(`projectToken${id}`);
+    if (!id || !redisToken || id !== redisToken) {
       throw new UnauthorizedException(
         'User is unauthorized to perform this action.',
       );
@@ -182,6 +184,7 @@ export class ProjectsService {
         { status: confirmProjectDTO.projectStatus },
         { new: true },
       );
+      await this.redisService.delete(`projectToken${id}`);
       return updatedData;
     }
 
@@ -220,6 +223,7 @@ export class ProjectsService {
         description: updatedData?.description,
       },
     });
+    await this.redisService.delete(`projectToken${id}`);
 
     return updatedData;
   }

@@ -4,6 +4,7 @@ import { Designation } from 'src/common/enum/designations.enum';
 
 export class AssignMembersDTO {
   @IsString()
+  @ApiProperty()
   projectName: string;
 
   @IsArray()
@@ -13,9 +14,11 @@ export class AssignMembersDTO {
 
 export class Users {
   @IsEnum(Designation)
+  @ApiProperty()
   designation: Designation;
 
   @IsArray()
   @IsString({ each: true })
+  @ApiProperty()
   userIDs: String[];
 }
