@@ -92,7 +92,7 @@ export class ProjectsService {
       const token = await this.jwtService.signAsync({
         id: project.id,
       });
-      await this.redisService.set(`projectToken${project.id}`, token);
+      await this.redisService.set(`projectToken${project.id}`, token, '1h');
 
       const budgets = projectQuota.map((project) => project.budget);
       const quotations = projectQuota.map((project) =>
@@ -135,7 +135,7 @@ export class ProjectsService {
   async getProjectInfo(token: string) {
     const { id } = await this.jwtService.decode(token);
     const redisToken = await this.redisService.get(`projectToken${id}`);
-    if (!id || !redisToken || id !== redisToken) {
+    if (!id || !redisToken || token !== redisToken) {
       throw new UnauthorizedException(
         'User is unauthorized to perform this action.',
       );

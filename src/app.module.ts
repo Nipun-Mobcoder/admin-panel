@@ -9,6 +9,7 @@ import { SendGridModule } from './email/sendGrip.module';
 import { LeavesModule } from './module/leaves/leaves.module';
 import { ProjectsModule } from './module/projects/projects.module';
 import { KafkaModule } from './kafka/kafka.module';
+import { NotificationModule } from './module/notification/notification.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { KafkaModule } from './kafka/kafka.module';
     SendGridModule,
     LeavesModule,
     ProjectsModule,
+    NotificationModule,
     KafkaModule,
   ],
 })
