@@ -181,7 +181,7 @@ export class UsersService {
 
   async profile(id: string) {
     try {
-      const userData = await this.userModel.findById(id);
+      const userData = await this.userModel.findById(id).populate("roles");
       return userData;
     } catch (e) {
       this.logger.error(e);
