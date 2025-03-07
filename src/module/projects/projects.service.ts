@@ -168,7 +168,7 @@ export class ProjectsService {
   async confirmProject(confirmProjectDTO: ConfirmProjectDTO) {
     const { id } = await this.jwtService.decode(confirmProjectDTO.token);
     const redisToken = await this.redisService.get(`projectToken${id}`);
-    if (!id || !redisToken || id !== redisToken) {
+    if (!id || !redisToken || confirmProjectDTO.token !== redisToken) {
       throw new UnauthorizedException(
         'User is unauthorized to perform this action.',
       );
@@ -214,7 +214,7 @@ export class ProjectsService {
     await this.kafkaService.produceMessage({
       userId: projectLead.id,
       type: 'Project Assigned',
-      message: {
+      notificationDetails: {
         projectName: updatedData?.projectName,
         proposedDuration: updatedData?.proposedDuration,
         techStack: updatedData?.techStack,
@@ -285,7 +285,7 @@ export class ProjectsService {
       }),
     );
 
-    const updatedData = await this.projectModel.updateOne(
+    const updatedData = await this.projectModel.findOneAndUpdate(
       { _id: project.id },
       { projectMembers: users },
       { new: true },

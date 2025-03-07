@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -101,14 +102,20 @@ export class LeavesService {
   }
 
   async updateLeave(updateLeave: UpdateLeaveDTO) {
-    try {
-      const leaveData = await this.LeaveModel.findById(
-        updateLeave.leaveId,
-      ).populate('user');
-      if (!leaveData) {
-        throw new NotFoundException('Leave not found.');
-      }
+    const leaveData = await this.LeaveModel.findById(
+      updateLeave.leaveId,
+    ).populate('user');
+    if (!leaveData) {
+      throw new NotFoundException('Leave not found.');
+    }
 
+    if (leaveData.status !== 'Progress') {
+      throw new ConflictException(
+        'The request for leave status has already been updated.',
+      );
+    }
+
+    try {
       const updatedLeaveData = await this.LeaveModel.findOneAndUpdate(
         { _id: updateLeave.leaveId },
         { status: updateLeave.status },
@@ -121,6 +128,19 @@ export class LeavesService {
           days: leaveData.days.length,
           leaveType: leaveData.leaveType,
         });
+
+      const user = leaveData.user;
+
+      await this.kafkaService.produceMessage({
+        userId: updatedLeaveData?.user,
+        type: 'Leave Application',
+        message: {
+          userName: `${user.userName.firstName} ${user.userName.lastName}`,
+          email: user.email,
+          ...leaveData,
+          status: updateLeave.status,
+        },
+      });
 
       return updatedLeaveData;
     } catch (error) {

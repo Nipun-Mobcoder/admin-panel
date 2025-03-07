@@ -39,7 +39,7 @@ export class NotificationService {
 
   async seenNotification(id: string) {
     try {
-      const notificaiton = await this.notificationModel.updateOne(
+      const notificaiton = await this.notificationModel.findOneAndUpdate(
         { _id: id },
         { seen: true },
         { new: true },
@@ -52,7 +52,7 @@ export class NotificationService {
   }
   async clearNotification(id: string) {
     try {
-      const notificaiton = await this.notificationModel.updateOne(
+      const notificaiton = await this.notificationModel.findOneAndUpdate(
         { _id: id },
         { clear: true },
         { new: true },
@@ -68,13 +68,23 @@ export class NotificationService {
     if (allNotifications) {
       return this.notificationModel.find({ user: userId });
     }
-    const unseenNotifcations = await this.notificationModel.find({
-      user: userId,
-      seen: false,
-    });
-    const seenNotifications = await this.notificationModel
-      .find({ user: userId, seen: true })
-      .size(5);
-    return { unseenNotifcations, seenNotifications };
+    const user = await this.userService.findUser(userId);
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+    try {
+      const unseenNotifcations = await this.notificationModel.find({
+        user,
+        seen: false,
+        clear: false,
+      });
+      const seenNotifications = await this.notificationModel
+        .find({ user, seen: true, clear: false })
+        .limit(5);
+      return { unseenNotifcations, seenNotifications };
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException();
+    }
   }
 }

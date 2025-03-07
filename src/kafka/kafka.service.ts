@@ -46,12 +46,16 @@ export class KafkaService implements OnModuleInit {
         const notification = JSON.parse(message.value.toString());
 
         console.log('Kafka Message Received:', notification);
-        await this.notificationService.createNotification({
-          notificationDetails: {...notification.message},
-          type: notification.type,
-          user: notification.userId
-        })
-        this.notificationGateway.sendNewNotification(notification);
+        const notificationDetails =
+          await this.notificationService.createNotification({
+            notificationDetails: notification.notificationDetails,
+            type: notification.type,
+            user: notification.userId,
+          });
+        this.notificationGateway.sendNewNotification({
+          ...notification,
+          notificationId: notificationDetails.id,
+        });
       },
     });
   }

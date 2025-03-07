@@ -90,7 +90,8 @@ export class UsersService {
     const { email, password } = loginUser;
     const userData = await this.userModel
       .findOne({ email })
-      .select('+password');
+      .select('+password')
+      .populate('roles');
 
     if (!userData) {
       throw new NotFoundException(`User with email ${email} not found.`);
@@ -181,7 +182,7 @@ export class UsersService {
 
   async profile(id: string) {
     try {
-      const userData = await this.userModel.findById(id).populate("roles");
+      const userData = await this.userModel.findById(id).populate('roles');
       return userData;
     } catch (e) {
       this.logger.error(e);
@@ -327,7 +328,7 @@ export class UsersService {
         );
 
       const { leaveType, days } = updateLeaveDTO;
-      const updateData = await this.userModel.updateOne(
+      const updateData = await this.userModel.findOneAndUpdate(
         { _id: user.id },
         { $inc: { [`leaveApplied.${leaveType}`]: days } },
         { new: true },
@@ -344,7 +345,7 @@ export class UsersService {
       const user = await this.userModel.findById(userID);
       if (!user) throw new NotFoundException(`User not found.`);
 
-      const updateData = await this.userModel.updateOne(
+      const updateData = await this.userModel.findOneAndUpdate(
         { _id: user.id },
         { currentProject: project },
         { new: true },
