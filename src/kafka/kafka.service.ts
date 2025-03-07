@@ -7,10 +7,14 @@ import { KafkaMessage } from 'kafkajs';
 
 import { producer, consumer } from './kafka.config';
 import { NotificationGateway } from './notification.gateway';
+import { NotificationService } from 'src/module/notification/notification.service';
 
 @Injectable()
 export class KafkaService implements OnModuleInit {
-  constructor(private readonly notificationGateway: NotificationGateway) {}
+  constructor(
+    private readonly notificationGateway: NotificationGateway,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async onModuleInit() {
     await this.connect();
@@ -42,6 +46,11 @@ export class KafkaService implements OnModuleInit {
         const notification = JSON.parse(message.value.toString());
 
         console.log('Kafka Message Received:', notification);
+        await this.notificationService.createNotification({
+          notificationDetails: {...notification.message},
+          type: notification.type,
+          user: notification.userId
+        })
         this.notificationGateway.sendNewNotification(notification);
       },
     });

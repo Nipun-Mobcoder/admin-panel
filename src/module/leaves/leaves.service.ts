@@ -16,7 +16,6 @@ import { ReqLeaveDTO } from './dto/ReqLeave.dto';
 import { UsersService } from '../users/users.service';
 import { UpdateLeaveDTO } from './dto/updateLeaveDTO';
 import { KafkaService } from 'src/kafka/kafka.service';
-import { leaveType } from 'src/common/enum/leaveType.enum';
 
 @Injectable()
 export class LeavesService {
@@ -83,13 +82,11 @@ export class LeavesService {
 
       await this.kafkaService.produceMessage({
         userId: hrDetails[0].id,
+        type: 'Leave Application',
         message: {
-          type: 'Leave Application',
-          user: {
-            userName: `${user.userName.firstName} ${user.userName.lastName}`,
-            email: user.email,
-            ...reqLeave,
-          },
+          userName: `${user.userName.firstName} ${user.userName.lastName}`,
+          email: user.email,
+          ...reqLeave,
         },
       });
 

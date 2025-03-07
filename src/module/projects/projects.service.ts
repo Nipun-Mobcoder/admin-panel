@@ -213,8 +213,8 @@ export class ProjectsService {
 
     await this.kafkaService.produceMessage({
       userId: projectLead.id,
+      type: 'Project Assigned',
       message: {
-        type: 'Project Assigned',
         projectName: updatedData?.projectName,
         proposedDuration: updatedData?.proposedDuration,
         techStack: updatedData?.techStack,

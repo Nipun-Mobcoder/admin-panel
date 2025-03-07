@@ -17,6 +17,9 @@ export class Notification {
 
   @Prop({ default: false })
   seen: boolean;
+
+  @Prop({ default: false })
+  clear: boolean;
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
