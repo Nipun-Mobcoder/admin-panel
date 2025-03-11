@@ -23,6 +23,8 @@ import { Designation } from 'src/common/enum/designations.enum';
 import { AssignRoleDTO } from './dto/assignRole.dto';
 import { UpdateLeaveDTO } from './dto/updateLeave.dto';
 import { Project } from '../projects/schema/project.schema';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { UpdateUserDTO } from './dto/updateUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -36,6 +38,7 @@ export class UsersService {
     private readonly rolesService: RolesService,
     private readonly sendGridClient: SendGridClient,
     private readonly configService: ConfigService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {
     this.bcryptSalt = bcrypt.genSaltSync(10);
   }
@@ -356,4 +359,78 @@ export class UsersService {
       throw new InternalServerErrorException();
     }
   }
+
+  async uploadFile(userId: string, uploadImage: Express.Multer.File) {
+    const userExists = await this.userModel.exists({ _id: userId });
+    if (!userExists) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const uploadData = await this.cloudinaryService.uploadImage(uploadImage);
+    const uploadURL = uploadData.secure_url;
+
+    try {
+      const updatedData = await this.userModel.findOneAndUpdate(
+        { _id: userId },
+        { avatar: uploadURL },
+        { new: true },
+      );
+
+      return updatedData;
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
+  async updateUser(userId: string, updateDto: UpdateUserDTO) {
+    const user = await this.userModel.findById({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    try {
+      const updatedFields: any = {};
+
+      if (updateDto?.firstName || updateDto?.lastName) {
+        updatedFields.userName = {
+          firstName: updateDto?.firstName ?? user.userName.firstName,
+          lastName: updateDto?.lastName ?? user.userName.lastName,
+        };
+      }
+
+      if (updateDto?.countryCode || updateDto?.phoneNumber) {
+        updatedFields.phoneNumber = {
+          countryCode: updateDto?.countryCode ?? user.phoneNumber.countryCode,
+          number: updateDto?.phoneNumber ?? user.phoneNumber.number,
+        };
+      }
+
+      if (updateDto?.branch) {
+        updatedFields.branch = updateDto?.branch;
+      }
+
+      if (updateDto?.address) {
+        updatedFields.address = {
+          state: updateDto?.address?.state ?? user.address?.state,
+          city: updateDto?.address?.city ?? user.address?.city,
+          country: updateDto?.address?.country ?? user.address?.country,
+          zipCode: updateDto?.address?.zipCode ?? user.address?.zipCode,
+        };
+      }
+
+      console.log(updateDto, updatedFields)
+      const userData = await this.userModel.findOneAndUpdate(
+        { _id: userId },
+        {
+          $set: updatedFields,
+        },
+        { new: true },
+      );
+      return userData;
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
 }

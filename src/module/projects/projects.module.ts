@@ -7,7 +7,7 @@ import {
   ProjectPolicy,
   ProjectPolicySchema,
 } from './schema/projectPolicy.schema';
-import { SendGridModule } from 'src/email/sendGrip.module';
+import { SendGridModule } from 'src/email/sendGrid.module';
 import { KafkaModule } from 'src/kafka/kafka.module';
 import { RedisModule } from 'src/redis/redis.module';
 

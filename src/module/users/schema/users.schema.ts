@@ -8,6 +8,20 @@ import { Roles } from 'src/module/roles/schema/roles.schema';
 
 export type UserDocument = mongoose.HydratedDocument<User>;
 
+@Schema()
+export class AddressSchema {
+  @Prop({ required: false })
+  state: string;
+  @Prop({ required: false })
+  city: string;
+  @Prop({ required: false })
+  country: string;
+  @Prop({ required: false })
+  zipCode: string;
+};
+
+export const AddressSchemaFactory = SchemaFactory.createForClass(AddressSchema);
+
 @Schema({ timestamps: { createdAt: true } })
 export class User {
   @Prop({ unique: true, required: true })
@@ -53,8 +67,8 @@ export class User {
   @Prop({ enum: ComapnyBranch, required: true })
   branch: ComapnyBranch;
 
-  @Prop()
-  address: mongoose.Schema.Types.Mixed;
+  @Prop({ required: false, type: AddressSchemaFactory })
+  address: AddressSchema;
 
   @Prop({
     type: Map,
@@ -65,6 +79,9 @@ export class User {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: () => Project })
   currentProject: Project;
+
+  @Prop()
+  avatar: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

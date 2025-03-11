@@ -2,16 +2,21 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
   Req,
   UnauthorizedException,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/createUser.dto';
@@ -26,6 +31,8 @@ import { Action } from 'src/common/enum/action.enum';
 import { ResetAuthenticationGuard } from 'src/guards/resetAuthentication.guard';
 import { FilterDTO } from './dto/filter.dto';
 import { AssignRoleDTO } from './dto/assignRole.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateUserDTO } from './dto/updateUser.dto';
 
 @Controller('users')
 export class UsersController {
@@ -111,5 +118,36 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   async assignRole(@Body() assignRoleDTO: AssignRoleDTO) {
     return this.usersService.assignRole(assignRoleDTO);
+  }
+
+  @Patch('update')
+  @UseGuards(AuthenticationGuard)
+  @HttpCode(HttpStatus.OK)
+  updateUser(@Req() request: Request, @Body() updateDto: UpdateUserDTO) {
+    const userDetails = request.user;
+    if (!userDetails || !userDetails.id) {
+      throw new UnauthorizedException();
+    }
+    return this.usersService.updateUser(userDetails.id, updateDto);
+  }
+
+  @Post('upload')
+  @UseGuards(AuthenticationGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file'))
+  uploadAvatar(
+    @Req() request: Request,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/jpeg' })],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const userDetails = request.user;
+    if (!userDetails || !userDetails.id) {
+      throw new UnauthorizedException();
+    }
+    return this.usersService.uploadFile(userDetails.id, file);
   }
 }
