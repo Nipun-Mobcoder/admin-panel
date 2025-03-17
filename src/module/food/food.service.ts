@@ -14,6 +14,7 @@ import { FilterRestaurauntDTO } from './dto/filterRestauraunt.dto';
 import { Order } from './schema/order.schema';
 import { OrderFoodDto } from './dto/orderFood.dto';
 import { UsersService } from '../users/users.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class FoodService {
@@ -21,8 +22,10 @@ export class FoodService {
   constructor(
     @InjectModel(Restaurant.name)
     private readonly restaurantModel: Model<Restaurant>,
+    @InjectModel(Order.name)
     private readonly orderModel: Model<Order>,
     private readonly userService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {
     this.logger = new Logger(FoodService.name);
   }
@@ -140,5 +143,10 @@ export class FoodService {
       this.logger.error(e);
       throw new InternalServerErrorException();
     }
+  }
+
+  async uploadImage(image: Express.Multer.File) {
+    const uploadData = await this.cloudinaryService.uploadImage(image);
+    return uploadData.secure_url;
   }
 }

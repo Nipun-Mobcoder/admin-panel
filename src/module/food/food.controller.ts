@@ -1,12 +1,16 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
+  ParseFilePipe,
   Post,
   Query,
   Req,
   UnauthorizedException,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Request } from 'express';
 
@@ -19,6 +23,7 @@ import { Resource } from 'src/common/enum/resource.enum';
 import { Action } from 'src/common/enum/action.enum';
 import { FilterRestaurauntDTO } from './dto/filterRestauraunt.dto';
 import { OrderFoodDto } from './dto/orderFood.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('food')
 @UseGuards(AuthenticationGuard, AuthorizationGuard)
@@ -49,5 +54,19 @@ export class FoodController {
     }
 
     return this.foodService.orderFood(userDetails.id, orderFoodDto);
+  }
+
+  @Post('uploadImage')
+  @UseInterceptors(FileInterceptor('file'))
+  @Permissions([{ resource: Resource.food, actions: [Action.create] }])
+  uploadImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/jpeg' })],
+      }),
+    )
+    image: Express.Multer.File,
+  ) {
+    return this.foodService.uploadImage(image);
   }
 }
