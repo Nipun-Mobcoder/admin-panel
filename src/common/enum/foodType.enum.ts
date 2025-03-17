@@ -1,7 +1,7 @@
 export enum foodType {
-  'Burger/Wraps',
-  'North Indian',
-  'South Indian',
-  'Continental',
-  'Chinese',
+  'Burger/Wraps' = 'Burger/Wraps',
+  'North Indian' = 'North Indian',
+  'South Indian' = 'South Indian',
+  'Continental' = 'Continental',
+  'Chinese' = 'Chinese',
 }

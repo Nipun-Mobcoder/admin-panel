@@ -41,20 +41,20 @@ export class UsersController {
   @Post('register')
   @UseGuards(AuthenticationGuard, AuthorizationGuard)
   @Permissions([{ resource: Resource.users, actions: [Action.create] }])
-  async register(@Body() createUser: CreateUserDTO) {
+  register(@Body() createUser: CreateUserDTO) {
     return this.usersService.createUser(createUser);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginUser: LoginUserDTO) {
+  login(@Body() loginUser: LoginUserDTO) {
     return this.usersService.login(loginUser);
   }
 
   @Get('logout')
   @UseGuards(AuthenticationGuard)
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() request: Request) {
+  logout(@Req() request: Request) {
     const userDetails = request.user;
     if (!userDetails || !userDetails.id || !userDetails.email) {
       throw new UnauthorizedException();
@@ -65,7 +65,7 @@ export class UsersController {
   @Get('profile')
   @UseGuards(AuthenticationGuard)
   @HttpCode(HttpStatus.OK)
-  async profile(@Req() request: Request) {
+  profile(@Req() request: Request) {
     const userDetails = request.user;
     if (!userDetails || !userDetails.id || !userDetails.email) {
       throw new UnauthorizedException();
@@ -75,17 +75,14 @@ export class UsersController {
 
   @Post('sendResetMail')
   @HttpCode(HttpStatus.OK)
-  async sendResetMail(@Body() logoutUser: UserEmailDTO) {
+  sendResetMail(@Body() logoutUser: UserEmailDTO) {
     return this.usersService.sendEmailForPassword(logoutUser.email);
   }
 
   @Patch('resetPassword')
   @UseGuards(ResetAuthenticationGuard)
   @HttpCode(HttpStatus.OK)
-  async resetPassword(
-    @Body() resetDTO: ResetPasswordDto,
-    @Req() request: Request,
-  ) {
+  resetPassword(@Body() resetDTO: ResetPasswordDto, @Req() request: Request) {
     const userDetails = request.user;
     if (!userDetails || !userDetails.email) {
       throw new UnauthorizedException();
@@ -100,7 +97,7 @@ export class UsersController {
   @UseGuards(AuthenticationGuard, AuthorizationGuard)
   @Permissions([{ resource: Resource.users, actions: [Action.delete] }])
   @HttpCode(HttpStatus.OK)
-  async deleteAccount(@Param('id') id: string) {
+  deleteAccount(@Param('id') id: string) {
     return this.usersService.delete(id);
   }
 
@@ -108,7 +105,7 @@ export class UsersController {
   @UseGuards(AuthenticationGuard, AuthorizationGuard)
   @Permissions([{ resource: Resource.users, actions: [Action.read] }])
   @HttpCode(HttpStatus.OK)
-  async fetch(@Query() filter: FilterDTO) {
+  fetch(@Query() filter: FilterDTO) {
     return this.usersService.fetch(filter);
   }
 
@@ -116,7 +113,7 @@ export class UsersController {
   @UseGuards(AuthenticationGuard, AuthorizationGuard)
   @Permissions([{ resource: Resource.users, actions: [Action.update] }])
   @HttpCode(HttpStatus.OK)
-  async assignRole(@Body() assignRoleDTO: AssignRoleDTO) {
+  assignRole(@Body() assignRoleDTO: AssignRoleDTO) {
     return this.usersService.assignRole(assignRoleDTO);
   }
 

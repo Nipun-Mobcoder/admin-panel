@@ -418,7 +418,6 @@ export class UsersService {
         };
       }
 
-      console.log(updateDto, updatedFields)
       const userData = await this.userModel.findOneAndUpdate(
         { _id: userId },
         {
@@ -432,5 +431,4 @@ export class UsersService {
       throw new InternalServerErrorException();
     }
   }
-
 }

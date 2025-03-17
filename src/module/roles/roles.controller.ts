@@ -25,7 +25,7 @@ export class RolesController {
 
   @Get(':roleName')
   @HttpCode(HttpStatus.OK)
-  async getRole(@Param('roleName') roleName: string) {
+  getRole(@Param('roleName') roleName: string) {
     return this.rolesService.getRole(roleName);
   }
 
@@ -35,7 +35,7 @@ export class RolesController {
     { resource: Resource.settings, actions: [Action.create, Action.update] },
   ])
   @HttpCode(HttpStatus.CREATED)
-  async createRole(@Body() createRoleDTO: CreateRoleDTO) {
+  createRole(@Body() createRoleDTO: CreateRoleDTO) {
     return this.rolesService.createRole(createRoleDTO);
   }
 
@@ -45,7 +45,7 @@ export class RolesController {
     { resource: Resource.settings, actions: [Action.create, Action.update] },
   ])
   @HttpCode(HttpStatus.OK)
-  async updateRole(@Body() updateRoleDTO: UpdateRoleDTO) {
+  updateRole(@Body() updateRoleDTO: UpdateRoleDTO) {
     return this.rolesService.updateRole(updateRoleDTO);
   }
 
@@ -53,7 +53,7 @@ export class RolesController {
   @UseGuards(AuthenticationGuard, AuthorizationGuard)
   @Permissions([{ resource: Resource.settings, actions: [Action.read] }])
   @HttpCode(HttpStatus.OK)
-  async fetch(@Param('type') type: string) {
+  fetch(@Param('type') type: string) {
     return this.rolesService.fetch(type);
   }
 }

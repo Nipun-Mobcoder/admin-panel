@@ -17,17 +17,17 @@ export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   @Get('seen/:id')
-  async seenNotification(@Param('id') id: string) {
+  seenNotification(@Param('id') id: string) {
     return this.notificationService.seenNotification(id);
   }
 
   @Get('clear/:id')
-  async clearNotification(@Param('id') id: string) {
+  clearNotification(@Param('id') id: string) {
     return this.notificationService.clearNotification(id);
   }
 
   @Get('fetch')
-  async fetchNotifications(
+  fetchNotifications(
     @Req() request: Request,
     @Query('allNotifications') allNotifications: string,
   ) {

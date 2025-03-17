@@ -46,6 +46,24 @@ class MenuDto {
   description?: string;
 }
 
+class AddressDTO {
+  @IsString()
+  @ApiProperty({ example: 'Delhi' })
+  state: string;
+
+  @IsString()
+  @ApiProperty({ example: 'Adarsh Nagar' })
+  city: string;
+
+  @IsString()
+  @ApiProperty({ example: 'India' })
+  country: string;
+
+  @IsString()
+  @ApiProperty({ example: '110033' })
+  zipCode: string;
+}
+
 export class AddRestaurauntDto {
   @IsString()
   @ApiProperty({ example: 'The Burger House' })
@@ -63,17 +81,16 @@ export class AddRestaurauntDto {
   @ApiProperty({ example: 4.5 })
   aggregateRating: number;
 
-  @IsString()
-  @ApiProperty({ example: '123, Main Street, NY' })
-  address: string;
+  @ValidateNested()
+  @Type(() => AddressDTO)
+  @ApiProperty()
+  address: AddressDTO;
 
   @IsNumber()
-  @IsPositive()
   @ApiProperty({ example: 123.25 })
   latitude: number;
 
   @IsNumber()
-  @IsPositive()
   @ApiProperty({ example: 456.57 })
   longitude: number;
 

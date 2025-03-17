@@ -26,7 +26,7 @@ export class NotificationGateway
     const isUserExist = this.users.find((user) => user.userId === userId);
     if (!isUserExist) {
       const user = { userId, socketId: client.id };
-      console.log(`new user ${userId} with ${client.id} just connected.+`)
+      console.log(`new user ${userId} with ${client.id} just connected.+`);
       this.users.push(user);
       this.server.emit('getUsers', this.users);
     }

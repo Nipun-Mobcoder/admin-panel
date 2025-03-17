@@ -18,7 +18,7 @@ export class AddressSchema {
   country: string;
   @Prop({ required: false })
   zipCode: string;
-};
+}
 
 export const AddressSchemaFactory = SchemaFactory.createForClass(AddressSchema);
 

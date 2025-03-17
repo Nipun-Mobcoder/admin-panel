@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { SortOrder } from 'mongoose';
+import { foodType } from 'src/common/enum/foodType.enum';
 
-export class FilterDTO {
+export class FilterRestaurauntDTO {
   @IsOptional()
   @IsString()
-  @ApiProperty({ example: 'nipun@gmail.com' })
-  searchFromEmail?: string;
+  @ApiProperty({ example: "McDonald's" })
+  search?: string;
 
   @IsOptional()
   @IsString()
@@ -27,4 +28,9 @@ export class FilterDTO {
   @IsString()
   @ApiProperty({ example: 10 })
   limit?: string;
+
+  @IsOptional()
+  @IsEnum(foodType)
+  @ApiProperty()
+  foodType: foodType;
 }

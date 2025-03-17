@@ -30,20 +30,18 @@ export class LeavesController {
   @Post('createPolicy')
   @Permissions([{ resource: Resource.leavePolicy, actions: [Action.create] }])
   @UseGuards(AuthorizationGuard)
-  async createLeavePolicy(@Body() createLeavePolicy: CreateLeavePolicyDTO[]) {
+  createLeavePolicy(@Body() createLeavePolicy: CreateLeavePolicyDTO[]) {
     return this.leavesService.createLeavePolicy(createLeavePolicy);
   }
 
   @Get('getLeaveQuota/:designation')
   @HttpCode(HttpStatus.OK)
-  async getLeaveQuotaByDesignation(
-    @Query('designation') designation: Designation,
-  ) {
+  getLeaveQuotaByDesignation(@Query('designation') designation: Designation) {
     return this.leavesService.getLeaveQuotaByDesignation(designation);
   }
 
   @Post()
-  async requestLeaves(@Body() reqLeave: ReqLeaveDTO, @Req() request: Request) {
+  requestLeaves(@Body() reqLeave: ReqLeaveDTO, @Req() request: Request) {
     const userDetails = request.user;
     if (!userDetails || !userDetails.id || !userDetails.email) {
       throw new UnauthorizedException();
@@ -54,7 +52,7 @@ export class LeavesController {
   @Post('update')
   @Permissions([{ resource: Resource.leavePolicy, actions: [Action.update] }])
   @UseGuards(AuthorizationGuard)
-  async updateLeaveStatus(@Body() updateStatus: UpdateLeaveDTO) {
+  updateLeaveStatus(@Body() updateStatus: UpdateLeaveDTO) {
     return this.leavesService.updateLeave(updateStatus);
   }
 }
