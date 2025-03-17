@@ -56,6 +56,9 @@ export class Restaurant {
   @Prop({ required: true })
   longitude: number;
 
+  @Prop({ required: false })
+  timeToReach: string;
+
   @Prop({ type: [MenuSchema], default: [] })
   menu: Menu[];
 }

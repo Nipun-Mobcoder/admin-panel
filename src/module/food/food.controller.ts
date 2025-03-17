@@ -57,7 +57,7 @@ export class FoodController {
   }
 
   @Post('uploadImage')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('image'))
   @Permissions([{ resource: Resource.food, actions: [Action.create] }])
   uploadImage(
     @UploadedFile(
