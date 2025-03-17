@@ -99,6 +99,11 @@ export class AddRestaurauntDto {
   @ApiProperty({ example: '5 km', required: false })
   distance?: string;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: '20 min' })
+  timeToReach: string;
+
   @ValidateNested({ each: true })
   @Type(() => MenuDto)
   @IsArray()
